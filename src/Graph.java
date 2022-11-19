@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 
 class Graph {
     private final int[][] adjMatrix;
-    private int[] colors;
+    private final int[] colors;
 
     public Graph(@NotNull Graph g) {
         this.adjMatrix = g.adjMatrix.clone();
@@ -60,14 +60,10 @@ class Graph {
         }
     }
 
-    public void printArrayByUnits(int @NotNull [] arr, int unit) {
+    public void printArrayByUnits(int @NotNull [] arr) {
         Arrays.stream(IntStream.range(0, arr.length).toArray()).forEach(i->System.out.printf("%-3d" +
-                ((i+1) % unit > 0 ? "" : "\n"), arr[i]));
+                ((i+1) % constants.MAX_VERTEX_DEGREE > 0 ? "" : "\n"), arr[i]));
         System.out.println();
-    }
-
-    void setColors(int[] colors) {
-        this.colors = colors.clone();
     }
 
     public int[] getColors() {

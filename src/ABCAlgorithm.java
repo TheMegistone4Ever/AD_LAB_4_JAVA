@@ -1,4 +1,3 @@
-import com.sun.source.tree.BreakTree;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -115,7 +114,7 @@ public class ABCAlgorithm {
         int bestCN = calculateChromaticNumber();
         System.out.println("Init colored graph:");
         System.out.printf("The new best solution of the graph is found - old: %d, new: %d:\n", constants.PALETTE_SIZE, bestCN);
-        graph.printArrayByUnits(graph.getColors(), constants.MAX_VERTEX_DEGREE);
+        graph.printArrayByUnits(graph.getColors());
         resetAlgorithm();
         for (int iteration = 0; iteration <= constants.ITERATIONS_COUNT; ++iteration, resetAlgorithm()) {
             if (iteration % constants.ITERATIONS_PER_STEP == 0)
@@ -124,7 +123,7 @@ public class ABCAlgorithm {
             if (newCN < bestCN) {
                 System.out.printf("The new best solution of the graph is found - old: %d, new: %d...\n", bestCN, newCN);
                 bestCN = newCN;
-                graph.printArrayByUnits(graph.getColors(), constants.MAX_VERTEX_DEGREE);
+                graph.printArrayByUnits(graph.getColors());
                 resGraph = new Graph(graph);
             }
         }
