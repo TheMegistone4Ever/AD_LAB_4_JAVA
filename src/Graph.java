@@ -1,3 +1,5 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -6,14 +8,14 @@ import java.util.stream.IntStream;
 
 class Graph {
     private final int[][] adjMatrix;
-    private final int[] colors;
+    private int[] colors;
 
-    public Graph(Graph g) {
+    public Graph(@NotNull Graph g) {
         this.adjMatrix = g.adjMatrix.clone();
         this.colors = g.colors.clone();
     }
 
-    public Graph(int[][] adjMatrix) {
+    public Graph(int @NotNull [][] adjMatrix) {
         this.adjMatrix = adjMatrix;
         this.colors = new int[adjMatrix.length];
         Arrays.fill(colors, constants.NO_COLOR);
@@ -40,32 +42,42 @@ class Graph {
         }
     }
 
-    public void validateAdjMatrix() {
+    public boolean validateAdjMatrix() {
         for (int[] row : adjMatrix) {
-            for (int el : row) {
-                if (el == 1) System.out.println("ERROR!");
-                int degree = IntStream.of(row).sum();
-                if (degree > constants.MAX_VERTEX_DEGREE) {
-                    System.out.println("Degree is bigger than MAX_VERTEX_DEGREE");
-                }
+            int degree = IntStream.of(row).sum();
+            if (degree > constants.MAX_VERTEX_DEGREE) {
+                System.out.printf("Degree %d is bigger than %d!\n", degree, constants.MAX_VERTEX_DEGREE);
+                return false;
             }
         }
+        return true;
     }
 
-    public void printDegrees() {
-        for (int[] row : adjMatrix) System.out.printf("%-3d", IntStream.of(row).sum());
-        System.out.println();
-    }
     public void printAdjMatrix() {
         for (int[] row : adjMatrix) {
-            for (int el : row) System.out.printf("%-3d", el);
+            for (int el : row) System.out.printf("%3d", el);
             System.out.println();
         }
     }
 
-    public void printColors() {
-        Arrays.stream(IntStream.range(0, colors.length).toArray()).forEach(i->System.out.printf("%-3d" +
-                ((i+1) % (constants.TOTAL_BEES_COUNT >> 1) > 0 ? "" : "\n"), colors[i]));
+    public void printArrayByUnits(int @NotNull [] arr, int unit) {
+        Arrays.stream(IntStream.range(0, arr.length).toArray()).forEach(i->System.out.printf("%-3d" +
+                ((i+1) % unit > 0 ? "" : "\n"), arr[i]));
+        System.out.println();
+    }
+
+    void setColors(int[] colors) {
+        this.colors = colors.clone();
+    }
+
+    public int[] getColors() {
+        return colors;
+    }
+
+    public int[] getDegrees() {
+        int[] degrees = new int[adjMatrix.length];
+        for (int i = 0; i < degrees.length; i++) degrees[i] = getVertexDegree(i);
+        return degrees;
     }
 
     public ArrayList<Integer> getVertexArray() {
@@ -106,10 +118,9 @@ class Graph {
 
     private boolean isColoringValid() {
         for (int row = 0; row < adjMatrix.length; row++) {
-            for (int col = 0; col < adjMatrix[0].length; col++) {
+            for (int col = 0; col < adjMatrix[row].length; col++) {
                 if (adjMatrix[row][col] == 1
                         && colors[row] != constants.NO_COLOR
-                        && colors[col] != constants.NO_COLOR
                         && colors[row] == colors[col]) {
                     return false;
                 }

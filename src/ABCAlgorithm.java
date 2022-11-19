@@ -1,12 +1,15 @@
+import com.sun.source.tree.BreakTree;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.stream.IntStream;
 
 public class ABCAlgorithm {
-    private final Graph initialGraph;
-    public Graph graph;
-    private ArrayList<Integer> availableVertices;
-    private final ArrayList<Integer> palette;
-    private final ArrayList<Integer> usedColors;
+    final Graph initialGraph;
+    Graph graph;
+    ArrayList<Integer> availableVertices;
+    final int[] palette;
+    final ArrayList<Integer> usedColors;
 
     public int calculateChromaticNumber() {
         while (!this.isFinished()) {
@@ -20,10 +23,7 @@ public class ABCAlgorithm {
         this.initialGraph = initialGraph;
         graph = new Graph(initialGraph);
         availableVertices = graph.getVertexArray();
-        palette = new ArrayList<>();
-        for (int i = 0; i < constants.PALETTE_SIZE; i++) {
-            palette.add(i);
-        }
+        palette = IntStream.range(0, constants.PALETTE_SIZE).toArray();
         usedColors = new ArrayList<>();
     }
 
@@ -37,7 +37,7 @@ public class ABCAlgorithm {
         return graph.isAllVerticesValidColored();
     }
 
-    private ArrayList<Integer> sendEmployedBees() {
+    private @NotNull ArrayList<Integer> sendEmployedBees() {
         ArrayList<Integer> selectedVertices = new ArrayList<>();
         selectedVertices.add(0);
         for (int employedBee = 0; employedBee < constants.EXPLORER_BEES_COUNT; employedBee++) {
@@ -49,7 +49,7 @@ public class ABCAlgorithm {
         return selectedVertices;
     }
 
-    private void sendOnlookerBees(ArrayList<Integer> selectedVertices) {
+    private void sendOnlookerBees(@NotNull ArrayList<Integer> selectedVertices) {
         int[] selectedVerticesDegrees = new int[selectedVertices.size()];
         for (int i = 0; i < selectedVerticesDegrees.length; i++) {
             selectedVerticesDegrees[i] = graph.getVertexDegree(selectedVertices.get(i));
@@ -66,7 +66,7 @@ public class ABCAlgorithm {
         }
     }
 
-    private int[] getOnlookerBeesSplit(int[] selectedVerticesDegrees) {
+    private int @NotNull [] getOnlookerBeesSplit(int[] selectedVerticesDegrees) {
         double[] nectarValues = getNectarValues(selectedVerticesDegrees);
         int onlookerBeesCount = constants.TOTAL_BEES_COUNT - constants.EXPLORER_BEES_COUNT;
         int[] res = new int[nectarValues.length];
@@ -78,7 +78,7 @@ public class ABCAlgorithm {
         return res;
     }
 
-    private double[] getNectarValues(int[] selectedVerticesDegrees) {
+    private double @NotNull [] getNectarValues(int[] selectedVerticesDegrees) {
         int summarySelectedVerticesDegree = IntStream.of(selectedVerticesDegrees).sum();
         double[] res = new double[selectedVerticesDegrees.length];
         for (int i = 0; i < selectedVerticesDegrees.length; i++) {
@@ -87,7 +87,7 @@ public class ABCAlgorithm {
         return res;
     }
 
-    private void colorConnectedVertices(int[] connectedVertices, int onlookerBeesCount) {
+    private void colorConnectedVertices(int @NotNull [] connectedVertices, int onlookerBeesCount) {
         for (int i = 0; i < connectedVertices.length; i++) {
             if (i < onlookerBeesCount - 1) colorVertex(connectedVertices[i]);
         }
@@ -96,10 +96,9 @@ public class ABCAlgorithm {
     private void colorVertex(int vertex) {
         ArrayList<Integer> availableColors = new ArrayList<>(usedColors);
         boolean isColoredSuccessfully = false;
-
         while (!isColoredSuccessfully) {
             if (availableColors.size() == 0) {
-                int newColor = getNextColor();
+                int newColor = palette[usedColors.size()];
                 usedColors.add(newColor);
                 graph.tryToColorAndCheckIsValid(vertex, newColor);
                 break;
@@ -109,28 +108,26 @@ public class ABCAlgorithm {
             availableColors.remove(randomAvailableColorIndex);
             isColoredSuccessfully = graph.tryToColorAndCheckIsValid(vertex, color);
         }
-
     }
 
-    private int getNextColor() {
-        return palette.get(usedColors.size());
-    }
-
-    public void test() {
-        int bestResult = calculateChromaticNumber();
+    public Graph train() {
+        Graph resGraph = new Graph(graph);
+        int bestCN = calculateChromaticNumber();
+        System.out.println("Init colored graph:");
+        System.out.printf("The new best solution of the graph is found - old: %d, new: %d:\n", constants.PALETTE_SIZE, bestCN);
+        graph.printArrayByUnits(graph.getColors(), constants.MAX_VERTEX_DEGREE);
         resetAlgorithm();
         for (int iteration = 0; iteration <= constants.ITERATIONS_COUNT; ++iteration, resetAlgorithm()) {
-            if (iteration % constants.ITERATIONS_PER_STEP == 0) {
-                System.out.printf("on iteration %d best result is %d\n", iteration, bestResult);
-            }
-            int newChromaticNumber = calculateChromaticNumber();
-            if (newChromaticNumber < bestResult) {
-                System.out.printf("The best solution of the graph is found - old heuristic: %d, new heuristic: %d\n",
-                        bestResult, newChromaticNumber);
-                bestResult = newChromaticNumber;
-                graph.printColors();
+            if (iteration % constants.ITERATIONS_PER_STEP == 0)
+                System.out.printf("On iteration %4d best result is %d...\n", iteration, bestCN);
+            int newCN = calculateChromaticNumber();
+            if (newCN < bestCN) {
+                System.out.printf("The new best solution of the graph is found - old: %d, new: %d...\n", bestCN, newCN);
+                bestCN = newCN;
+                graph.printArrayByUnits(graph.getColors(), constants.MAX_VERTEX_DEGREE);
+                resGraph = new Graph(graph);
             }
         }
+        return resGraph;
     }
-
 }
