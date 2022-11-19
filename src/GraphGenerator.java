@@ -6,7 +6,7 @@ public class GraphGenerator {
         return new Random().nextInt(max - min) + min;
     }
 
-    public static Graph generateGraph() {
+    public Graph generateGraph() {
         int[][] adjMatrix = new int[constants.VERTEX_COUNT][constants.VERTEX_COUNT];
         for (int vertex = 0; vertex < constants.VERTEX_COUNT; ++vertex) {
             int[] vertexConnections = adjMatrix[vertex];

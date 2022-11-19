@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 class Graph {
@@ -8,8 +9,28 @@ class Graph {
 
     public Graph(int[][] adjMatrix) {
         this.adjMatrix = adjMatrix;
-        colors = new int[adjMatrix.length];
+        this.colors = new int[adjMatrix.length];
         Arrays.fill(colors, -1);
+        /*for (int vertex = 0; vertex < constants.VERTEX_COUNT; ++vertex) {
+            int[] vertexConnections = this.adjMatrix[vertex];
+            int currentVertexDegree = IntStream.of(vertexConnections).sum();
+            int finalVertexDegree = Math.min(rand(constants.MIN_VERTEX_DEGREE, constants.MAX_VERTEX_DEGREE+1)-currentVertexDegree, constants.VERTEX_COUNT - vertex - 1);
+            for (int newConnection = 0; newConnection < finalVertexDegree; ++newConnection) {
+                boolean isConnectedAlready = true;
+                int tryCount = 0;
+                int newConnectionVertex;
+                while (isConnectedAlready && tryCount < constants.VERTEX_COUNT) {
+                    newConnectionVertex = rand(vertex + 1, constants.VERTEX_COUNT);
+                    ++tryCount;
+                    int newConnectionVertexDegree = IntStream.of(this.adjMatrix[newConnectionVertex]).sum();
+                    if (vertexConnections[newConnectionVertex] == 0 && newConnectionVertexDegree < constants.MAX_VERTEX_DEGREE) {
+                        isConnectedAlready = false;
+                        this.adjMatrix[vertex][newConnectionVertex] = 1;
+                        this.adjMatrix[newConnectionVertex][vertex] = 1;
+                    }
+                }
+            }
+        }*/
     }
 
     public final int[][] getAdjMatrix() {
@@ -39,7 +60,7 @@ class Graph {
     public void printAdjMatrix() {
         for (int row = 0; row < adjMatrix.length; row++) {
             for (int col = 0; col < adjMatrix[0].length; col++)
-                System.out.println(adjMatrix[row][col] + " ");
+                System.out.println('\t' + adjMatrix[row][col]);
             System.out.println();
         }
     }
@@ -99,5 +120,9 @@ class Graph {
             }
         }
         return true;
+    }
+
+    public static int rand(int min, int max) {
+        return new Random().nextInt(max - min) + min;
     }
 }
