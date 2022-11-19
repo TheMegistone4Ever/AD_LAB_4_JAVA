@@ -18,7 +18,7 @@ public class ABCAlgorithm {
 
     public ABCAlgorithm(Graph initialGraph) {
         this.initialGraph = initialGraph;
-        graph = new Graph(initialGraph.getAdjMatrix());
+        graph = new Graph(initialGraph);
         availableVertices = graph.getVertexArray();
         palette = new ArrayList<>();
         for (int i = 0; i < constants.PALETTE_SIZE; i++) {
@@ -30,7 +30,7 @@ public class ABCAlgorithm {
     public void resetAlgorithm() {
         usedColors.clear();
         availableVertices = graph.getVertexArray();
-        graph = new Graph(initialGraph.getAdjMatrix());
+        graph = new Graph(initialGraph);
     }
 
     private boolean isFinished() {
@@ -40,7 +40,7 @@ public class ABCAlgorithm {
     private ArrayList<Integer> sendEmployedBees() {
         ArrayList<Integer> selectedVertices = new ArrayList<>();
         selectedVertices.add(0);
-        for (int employedBee = 0; employedBee < constants.EMPLOYED_BEES_COUNT; employedBee++) {
+        for (int employedBee = 0; employedBee < constants.EXPLORER_BEES_COUNT; employedBee++) {
             int randomSelectedVertexIndex = Graph.rand(0, availableVertices.size());
             int randomSelectedVertex = availableVertices.get(randomSelectedVertexIndex);
             availableVertices.remove((Object)randomSelectedVertex);
@@ -68,15 +68,12 @@ public class ABCAlgorithm {
 
     private int[] getOnlookerBeesSplit(int[] selectedVerticesDegrees) {
         double[] nectarValues = getNectarValues(selectedVerticesDegrees);
-        int onlookerBeesCount = constants.TOTAL_BEES_COUNT - constants.EMPLOYED_BEES_COUNT;
+        int onlookerBeesCount = constants.TOTAL_BEES_COUNT - constants.EXPLORER_BEES_COUNT;
         int[] res = new int[nectarValues.length];
         for (int i = 0; i < nectarValues.length; i++){
-//            if (i == nectarValues.length) res[i] = onlookerBeesCount;
-//            else {
-                int onlookerBeesCountForCurrentVertex = (int)(onlookerBeesCount * nectarValues[i]);
-                onlookerBeesCount -= onlookerBeesCountForCurrentVertex;
-                res[i] = onlookerBeesCountForCurrentVertex;
-//            }
+            int onlookerBeesCountForCurrentVertex = (int)(onlookerBeesCount * nectarValues[i]);
+            onlookerBeesCount -= onlookerBeesCountForCurrentVertex;
+            res[i] = onlookerBeesCountForCurrentVertex;
         }
         return res;
     }
@@ -119,19 +116,21 @@ public class ABCAlgorithm {
         return palette.get(usedColors.size());
     }
 
-    /*public void test() {
+    public void test() {
         int bestResult = calculateChromaticNumber();
         resetAlgorithm();
         for (int iteration = 0; iteration <= constants.ITERATIONS_COUNT; ++iteration, resetAlgorithm()) {
             if (iteration % constants.ITERATIONS_PER_STEP == 0) {
-                System.out.printf("on iteration %d best result is %d%n", iteration, bestResult);
+                System.out.printf("on iteration %d best result is %d\n", iteration, bestResult);
             }
             int newChromaticNumber = calculateChromaticNumber();
             if (newChromaticNumber < bestResult) {
+                System.out.printf("The best solution of the graph is found - old heuristic: %d, new heuristic: %d\n",
+                        bestResult, newChromaticNumber);
                 bestResult = newChromaticNumber;
                 graph.printColors();
             }
         }
-    }*/
+    }
 
 }

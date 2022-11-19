@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -7,14 +8,20 @@ class Graph {
     private final int[][] adjMatrix;
     private final int[] colors;
 
+    public Graph(Graph g) {
+        this.adjMatrix = g.adjMatrix.clone();
+        this.colors = g.colors.clone();
+    }
+
     public Graph(int[][] adjMatrix) {
         this.adjMatrix = adjMatrix;
         this.colors = new int[adjMatrix.length];
-        Arrays.fill(colors, -1);
-        /*for (int vertex = 0; vertex < constants.VERTEX_COUNT; ++vertex) {
+        Arrays.fill(colors, constants.NO_COLOR);
+        for (int vertex = 0; vertex < constants.VERTEX_COUNT; ++vertex) {
             int[] vertexConnections = this.adjMatrix[vertex];
             int currentVertexDegree = IntStream.of(vertexConnections).sum();
-            int finalVertexDegree = Math.min(rand(constants.MIN_VERTEX_DEGREE, constants.MAX_VERTEX_DEGREE+1)-currentVertexDegree, constants.VERTEX_COUNT - vertex - 1);
+            int finalVertexDegree = Math.min(rand(constants.MIN_VERTEX_DEGREE,
+                    constants.MAX_VERTEX_DEGREE+1)-currentVertexDegree, constants.VERTEX_COUNT - vertex - 1);
             for (int newConnection = 0; newConnection < finalVertexDegree; ++newConnection) {
                 boolean isConnectedAlready = true;
                 int tryCount = 0;
@@ -23,25 +30,21 @@ class Graph {
                     newConnectionVertex = rand(vertex + 1, constants.VERTEX_COUNT);
                     ++tryCount;
                     int newConnectionVertexDegree = IntStream.of(this.adjMatrix[newConnectionVertex]).sum();
-                    if (vertexConnections[newConnectionVertex] == 0 && newConnectionVertexDegree < constants.MAX_VERTEX_DEGREE) {
+                    if (vertexConnections[newConnectionVertex] == 0
+                            && newConnectionVertexDegree < constants.MAX_VERTEX_DEGREE) {
                         isConnectedAlready = false;
-                        this.adjMatrix[vertex][newConnectionVertex] = 1;
-                        this.adjMatrix[newConnectionVertex][vertex] = 1;
+                        this.adjMatrix[vertex][newConnectionVertex] = this.adjMatrix[newConnectionVertex][vertex] = 1;
                     }
                 }
             }
-        }*/
-    }
-
-    public final int[][] getAdjMatrix() {
-        return adjMatrix;
+        }
     }
 
     public void validateAdjMatrix() {
-        for (int row = 0; row < adjMatrix.length; row++) {
-            for (int col = 0; col < adjMatrix[0].length; col++) {
-                if (adjMatrix[row][col] == 1) System.out.println("ERROR!");
-                int degree = IntStream.of(adjMatrix[row]).sum();
+        for (int[] row : adjMatrix) {
+            for (int el : row) {
+                if (el == 1) System.out.println("ERROR!");
+                int degree = IntStream.of(row).sum();
                 if (degree > constants.MAX_VERTEX_DEGREE) {
                     System.out.println("Degree is bigger than MAX_VERTEX_DEGREE");
                 }
@@ -50,28 +53,23 @@ class Graph {
     }
 
     public void printDegrees() {
-        for (int row = 0; row < adjMatrix.length; row++) {
-            for (int col = 0; col < adjMatrix[0].length; col++) {
-                int degree = IntStream.of(adjMatrix[row]).sum();
-                System.out.println(degree);
-            }
-        }
+        for (int[] row : adjMatrix) System.out.printf("%-3d", IntStream.of(row).sum());
+        System.out.println();
     }
     public void printAdjMatrix() {
-        for (int row = 0; row < adjMatrix.length; row++) {
-            for (int col = 0; col < adjMatrix[0].length; col++)
-                System.out.println('\t' + adjMatrix[row][col]);
+        for (int[] row : adjMatrix) {
+            for (int el : row) System.out.printf("%-3d", el);
             System.out.println();
         }
     }
+
     public void printColors() {
-        System.out.println(String.join(" ", Arrays.toString(colors)));
+        Arrays.stream(IntStream.range(0, colors.length).toArray()).forEach(i->System.out.printf("%-3d" +
+                ((i+1) % (constants.TOTAL_BEES_COUNT >> 1) > 0 ? "" : "\n"), colors[i]));
     }
 
     public ArrayList<Integer> getVertexArray() {
-        ArrayList<Integer> vertArr = new ArrayList<>();
-        for (int i = 0; i < constants.VERTEX_COUNT; i++) vertArr.add(i);
-        return vertArr;
+        return IntStream.range(0, constants.VERTEX_COUNT).collect(ArrayList::new, List::add, List::addAll);
     }
 
     public int getVertexDegree(int vertex) {
@@ -86,14 +84,10 @@ class Graph {
         return connectedVertexes;
     }
 
-    private int getVertexColor(int vertex) {
-        return colors[vertex];
-    }
-
     public boolean isAllVerticesValidColored() {
         int uncoloredVerticesCount = 0;
-        for (int i = 0; i < colors.length; i++) {
-            if (colors[i] == -1) {
+        for (int color : colors) {
+            if (color == -1) {
                 uncoloredVerticesCount++;
             }
         }
@@ -113,8 +107,10 @@ class Graph {
     private boolean isColoringValid() {
         for (int row = 0; row < adjMatrix.length; row++) {
             for (int col = 0; col < adjMatrix[0].length; col++) {
-                if (adjMatrix[row][col] == 1 && getVertexColor(row) != -1
-                && getVertexColor(col) != -1 && getVertexColor(row) == getVertexColor(col)) {
+                if (adjMatrix[row][col] == 1
+                        && colors[row] != constants.NO_COLOR
+                        && colors[col] != constants.NO_COLOR
+                        && colors[row] == colors[col]) {
                     return false;
                 }
             }

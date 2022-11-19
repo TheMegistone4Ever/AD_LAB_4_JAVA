@@ -1,11 +1,9 @@
 public class GCP_ABC_ABC {
     public static void main(String[] args) {
-        GraphGenerator gg = new GraphGenerator();
-        Graph graph = gg.generateGraph();
+        Graph graph = new Graph(new int[constants.VERTEX_COUNT][constants.VERTEX_COUNT]);
         ABCAlgorithm algorithm = new ABCAlgorithm(graph);
-        ABCAlgorithmTester algorithmTester = new ABCAlgorithmTester(algorithm);
         long start = System.currentTimeMillis();
-        algorithmTester.test();
-        System.out.printf("Estimated time in minutes: %d\n", (System.currentTimeMillis()-start)/3600);
+        algorithm.test();
+        System.out.printf("Estimated time in minutes: %d\n", (System.currentTimeMillis()-start)/60000);
     }
 }
