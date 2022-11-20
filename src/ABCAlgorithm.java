@@ -22,7 +22,7 @@ public class ABCAlgorithm {
         this.initialGraph = initialGraph;
         graph = new Graph(initialGraph);
         availableVertices = graph.getVertexArray();
-        palette = IntStream.range(0, constants.PALETTE_SIZE).toArray();
+        palette = IntStream.range(0, constants.MAX_VERTEX_DEGREE + 1).toArray();
         usedColors = new LinkedList<>();
     }
 
@@ -114,7 +114,7 @@ public class ABCAlgorithm {
         int bestCN = calculateChromaticNumber();
         System.out.println("Init colored graph:");
         System.out.printf("The new best solution of the graph is found on %d iteration - old: %d, new: %d:\n",
-                0, constants.PALETTE_SIZE, bestCN);
+                0, constants.MAX_VERTEX_DEGREE + 1, bestCN);
         graph.printArrayByUnits(graph.getColors());
         resetAlgorithm();
         for (int iteration = 0; iteration < constants.ITERATIONS_COUNT;) {

@@ -50,7 +50,7 @@ class Graph {
     }
 
     public void printArrayByUnits(int @NotNull [] arr) {
-        Arrays.stream(IntStream.range(0, arr.length).toArray()).forEach(i->System.out.printf("%4d" +
+        Arrays.stream(IntStream.range(0, arr.length).toArray()).forEach(i -> System.out.printf("%4d" +
                 ((i+1) % constants.UNIT_SIZE > 0 ? "" : "\n"), arr[i]));
         System.out.println();
     }
