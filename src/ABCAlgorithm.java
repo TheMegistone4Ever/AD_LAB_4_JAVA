@@ -1,18 +1,18 @@
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.stream.IntStream;
 
 public class ABCAlgorithm {
     final Graph initialGraph;
     Graph graph;
-    ArrayList<Integer> availableVertices;
+    LinkedList<Integer> availableVertices;
     final int[] palette;
-    final ArrayList<Integer> usedColors;
+    final LinkedList<Integer> usedColors;
 
     public int calculateChromaticNumber() {
         while (!this.isFinished()) {
-            ArrayList<Integer> selectedVertices = sendEmployedBees();
+            LinkedList<Integer> selectedVertices = sendEmployedBees();
             sendOnlookerBees(selectedVertices);
         }
         return usedColors.size();
@@ -23,7 +23,7 @@ public class ABCAlgorithm {
         graph = new Graph(initialGraph);
         availableVertices = graph.getVertexArray();
         palette = IntStream.range(0, constants.PALETTE_SIZE).toArray();
-        usedColors = new ArrayList<>();
+        usedColors = new LinkedList<>();
     }
 
     public void resetAlgorithm() {
@@ -36,8 +36,8 @@ public class ABCAlgorithm {
         return graph.isAllVerticesValidColored();
     }
 
-    private @NotNull ArrayList<Integer> sendEmployedBees() {
-        ArrayList<Integer> selectedVertices = new ArrayList<>();
+    private @NotNull LinkedList<Integer> sendEmployedBees() {
+        LinkedList<Integer> selectedVertices = new LinkedList<>();
         selectedVertices.add(0);
         for (int employedBee = 0; employedBee < constants.EXPLORER_BEES_COUNT; employedBee++) {
             int randomSelectedVertexIndex = Graph.rand(0, availableVertices.size());
@@ -48,7 +48,7 @@ public class ABCAlgorithm {
         return selectedVertices;
     }
 
-    private void sendOnlookerBees(@NotNull ArrayList<Integer> selectedVertices) {
+    private void sendOnlookerBees(@NotNull LinkedList<Integer> selectedVertices) {
         int[] selectedVerticesDegrees = new int[selectedVertices.size()];
         for (int i = 0; i < selectedVerticesDegrees.length; i++) {
             selectedVerticesDegrees[i] = graph.getVertexDegree(selectedVertices.get(i));
@@ -93,7 +93,7 @@ public class ABCAlgorithm {
     }
 
     private void colorVertex(int vertex) {
-        ArrayList<Integer> availableColors = new ArrayList<>(usedColors);
+        LinkedList<Integer> availableColors = new LinkedList<>(usedColors);
         boolean isColoredSuccessfully = false;
         while (!isColoredSuccessfully) {
             if (availableColors.size() == 0) {
@@ -113,19 +113,23 @@ public class ABCAlgorithm {
         Graph resGraph = new Graph(graph);
         int bestCN = calculateChromaticNumber();
         System.out.println("Init colored graph:");
-        System.out.printf("The new best solution of the graph is found - old: %d, new: %d:\n", constants.PALETTE_SIZE, bestCN);
+        System.out.printf("The new best solution of the graph is found on %d iteration - old: %d, new: %d:\n",
+                0, constants.PALETTE_SIZE, bestCN);
         graph.printArrayByUnits(graph.getColors());
         resetAlgorithm();
-        for (int iteration = 0; iteration <= constants.ITERATIONS_COUNT; ++iteration, resetAlgorithm()) {
-            if (iteration % constants.ITERATIONS_PER_STEP == 0)
-                System.out.printf("On iteration %4d best result is %d...\n", iteration, bestCN);
-            int newCN = calculateChromaticNumber();
-            if (newCN < bestCN) {
-                System.out.printf("The new best solution of the graph is found - old: %d, new: %d...\n", bestCN, newCN);
-                bestCN = newCN;
-                graph.printArrayByUnits(graph.getColors());
-                resGraph = new Graph(graph);
+        for (int iteration = 0; iteration < constants.ITERATIONS_COUNT;) {
+            for (int k = 0; k < constants.ITERATIONS_PER_STEP; ++k, resetAlgorithm()) {
+                int newCN = calculateChromaticNumber();
+                if (newCN < bestCN) {
+                    System.out.printf("New best solution of the graph is found on %d iteration, old: %d, new: %d...\n",
+                            iteration + k, bestCN, newCN);
+                    bestCN = newCN;
+                    graph.printArrayByUnits(graph.getColors());
+                    resGraph = new Graph(graph);
+                }
             }
+            iteration += constants.ITERATIONS_PER_STEP;
+            System.out.printf("On iteration %4d best result is %d...\n", iteration, bestCN);
         }
         return resGraph;
     }

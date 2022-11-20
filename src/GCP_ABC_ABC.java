@@ -6,10 +6,9 @@ public class GCP_ABC_ABC {
         System.out.println("Degrees of graph: ");
         graph.printArrayByUnits(graph.getDegrees());
         System.out.println("Start solving by ABC(ABC) algorithm...");
-        ABCAlgorithm algorithm = new ABCAlgorithm(graph);
         long start = System.currentTimeMillis();
+        graph = new ABCAlgorithm(graph).train();
         System.out.printf("Estimated time in minutes: %d\n", (System.currentTimeMillis() - start) / constants.MIN);
-        graph = algorithm.train();
         System.out.println("Final colored graph:");
         graph.printArrayByUnits(graph.getColors());
     }
