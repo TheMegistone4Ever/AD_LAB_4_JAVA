@@ -61,11 +61,8 @@ public class ABCAlgorithm {
         double[] nectarValues = getNectarValues(selectedVerticesDegrees);
         int onlookerBeesCount = constants.TOTAL_BEES_COUNT - constants.EXPLORER_BEES_COUNT;
         int[] res = new int[nectarValues.length];
-        for (int i = 0; i < nectarValues.length; ++i){
-//            int onlookerBeesCountForCurrentVertex = (int)(onlookerBeesCount * nectarValues[i]);
-            onlookerBeesCount -= res[i] = (int)(onlookerBeesCount * nectarValues[i]);
-//            res[i] = onlookerBeesCountForCurrentVertex;
-        }
+        for (int i = 0; i < nectarValues.length; ++i)
+            onlookerBeesCount -= res[i] = (int)(onlookerBeesCount * nectarValues[i]); //onlookerBeesCountForCurrentVertex
         return res;
     }
 
