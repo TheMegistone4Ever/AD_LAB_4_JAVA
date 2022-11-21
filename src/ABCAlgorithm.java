@@ -61,10 +61,10 @@ public class ABCAlgorithm {
         double[] nectarValues = getNectarValues(selectedVerticesDegrees);
         int onlookerBeesCount = constants.TOTAL_BEES_COUNT - constants.EXPLORER_BEES_COUNT;
         int[] res = new int[nectarValues.length];
-        for (int i = 0; i < nectarValues.length; i++){
-            int onlookerBeesCountForCurrentVertex = (int)(onlookerBeesCount * nectarValues[i]);
-            onlookerBeesCount -= onlookerBeesCountForCurrentVertex;
-            res[i] = onlookerBeesCountForCurrentVertex;
+        for (int i = 0; i < nectarValues.length; ++i){
+//            int onlookerBeesCountForCurrentVertex = (int)(onlookerBeesCount * nectarValues[i]);
+            onlookerBeesCount -= res[i] = (int)(onlookerBeesCount * nectarValues[i]);
+//            res[i] = onlookerBeesCountForCurrentVertex;
         }
         return res;
     }
@@ -91,9 +91,8 @@ public class ABCAlgorithm {
                 graph.tryToColorAndCheckIsValid(vertex, newColor);
                 break;
             }
-            int randomAvailableColorIndex = new Random().nextInt(availableColors.size());
-            int color = availableColors.get(randomAvailableColorIndex);
-            availableColors.remove(randomAvailableColorIndex);
+            int color = availableColors.get(new Random().nextInt(availableColors.size()));
+            availableColors.remove((Object)color);
             isColoredSuccessfully = graph.tryToColorAndCheckIsValid(vertex, color);
         }
     }
@@ -112,13 +111,13 @@ public class ABCAlgorithm {
                 int newCN = calculateChromaticNumber();
                 if (newCN < bestCN) {
                     System.out.printf("New best solution of the graph found on %4d iteration, old: %3d, new: %3d, estimated time - %2d seconds\n",
-                            iteration + k, bestCN, bestCN = newCN, (System.currentTimeMillis()-start) / 1000);
+                            iteration + k, bestCN, bestCN = newCN, (System.currentTimeMillis() - start) / 1000);
                     graph.printArrayByUnits(graph.getColors());
                     resGraph = new Graph(graph);
                 }
             }
-            iteration += constants.ITERATIONS_PER_STEP;
-            System.out.printf("On iteration %4d best result is %d...\n", iteration, bestCN);
+            System.out.printf("On iteration %4d best result is %3d, estimated time - %2d seconds\n",
+                    iteration += constants.ITERATIONS_PER_STEP, bestCN, (System.currentTimeMillis() - start) / 1000);
         }
         return resGraph;
     }

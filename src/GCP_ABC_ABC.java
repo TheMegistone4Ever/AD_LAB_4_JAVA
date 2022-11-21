@@ -10,7 +10,7 @@ public class GCP_ABC_ABC {
         System.out.println("Start solving by ABC(ABC) algorithm...");
         long start = System.currentTimeMillis();
         graph = new ABCAlgorithm(graph).train();
-        System.out.printf("Estimated time in seconds: %d\n", (System.currentTimeMillis() - start) / 1000);
+        System.out.printf("Estimated time: %d seconds...\n", (System.currentTimeMillis() - start) / 1000);
 
         System.out.println("Final colored graph:");
         graph.printArrayByUnits(graph.getColors());
