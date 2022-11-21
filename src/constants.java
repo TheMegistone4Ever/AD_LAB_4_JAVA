@@ -8,6 +8,5 @@ public abstract class constants {
             TOTAL_BEES_COUNT = 60,
             EXPLORER_BEES_COUNT = 5,
             NO_COLOR = -1,
-            MIN = 60000,
-            UNIT_SIZE = 40;
+            UNIT_SIZE = 44;
 }

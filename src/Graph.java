@@ -15,24 +15,20 @@ class Graph {
     public Graph(int @NotNull [][] adjMatrix) {
         this.adjMatrix = adjMatrix;
         this.colors = new int[adjMatrix.length];
-        Arrays.fill(colors, constants.NO_COLOR);
-        for (int vertex = 0; vertex < constants.VERTEX_COUNT; ++vertex) {
-            int[] vertexConnections = this.adjMatrix[vertex];
-            int currentVertexDegree = IntStream.of(vertexConnections).sum();
+        Arrays.fill(this.colors, constants.NO_COLOR);
+        for (int currV = 0; currV < constants.VERTEX_COUNT; ++currV) {
             int finalVertexDegree = Math.min(rand(constants.MIN_VERTEX_DEGREE,
-                    constants.MAX_VERTEX_DEGREE+1)-currentVertexDegree, constants.VERTEX_COUNT - vertex - 1);
+                    constants.MAX_VERTEX_DEGREE + 1) - getVertexDegree(currV), constants.VERTEX_COUNT - currV - 1);
             for (int newConnection = 0; newConnection < finalVertexDegree; ++newConnection) {
                 boolean isConnectedAlready = true;
-                int tryCount = 0;
-                int newConnectionVertex;
-                while (isConnectedAlready && tryCount < constants.VERTEX_COUNT) {
-                    newConnectionVertex = rand(vertex + 1, constants.VERTEX_COUNT);
-                    ++tryCount;
-                    int newConnectionVertexDegree = IntStream.of(this.adjMatrix[newConnectionVertex]).sum();
-                    if (vertexConnections[newConnectionVertex] == 0
-                            && newConnectionVertexDegree < constants.MAX_VERTEX_DEGREE) {
+                for (int tryCount = 0, newVertex = rand(currV + 1, constants.VERTEX_COUNT);
+                     isConnectedAlready && tryCount < constants.VERTEX_COUNT;
+                     ++tryCount, newVertex = rand(currV + 1, constants.VERTEX_COUNT)) {
+                    if (this.adjMatrix[currV][newVertex] == 0
+                            && getVertexDegree(newVertex) < constants.MAX_VERTEX_DEGREE) {
                         isConnectedAlready = false;
-                        this.adjMatrix[vertex][newConnectionVertex] = this.adjMatrix[newConnectionVertex][vertex] = 1;
+                        this.adjMatrix[currV][newVertex] = 1;
+                        this.adjMatrix[newVertex][currV] = 1;
                     }
                 }
             }
@@ -40,8 +36,8 @@ class Graph {
     }
 
     public boolean validateAdjMatrix() {
-        for (int[] row : adjMatrix)
-            if (IntStream.of(row).sum() > constants.MAX_VERTEX_DEGREE) return false;
+        for (int vertex = 0; vertex < adjMatrix.length; ++vertex)
+            if (getVertexDegree(vertex) > constants.MAX_VERTEX_DEGREE) return false;
         return true;
     }
 
@@ -61,12 +57,12 @@ class Graph {
 
     public int[] getDegrees() {
         int[] degrees = new int[adjMatrix.length];
-        for (int i = 0; i < degrees.length; i++) degrees[i] = getVertexDegree(i);
+        for (int i = 0; i < degrees.length; ++i) degrees[i] = getVertexDegree(i);
         return degrees;
     }
 
-    public LinkedList<Integer> getVertexArray() {
-        return IntStream.range(0, constants.VERTEX_COUNT).collect(LinkedList::new, List::add, List::addAll);
+    public static ArrayList<Integer> getVertexArray() {
+        return IntStream.range(0, constants.VERTEX_COUNT).collect(ArrayList::new, List::add, List::addAll);
     }
 
     public int getVertexDegree(int vertex) {
@@ -74,20 +70,14 @@ class Graph {
     }
 
     public int[] getConnectedVertexes(int vertex) {
-        int[] connectedVertexes = new int[IntStream.of(adjMatrix[vertex]).sum()];
+        int[] connectedVertexes = new int[getVertexDegree(vertex)];
         for (int i = 0, k = -1; i < adjMatrix[vertex].length; ++i)
             if (adjMatrix[vertex][i] == 1) connectedVertexes[++k] = i;
         return connectedVertexes;
     }
 
     public boolean isAllVerticesValidColored() {
-        int uncoloredVerticesCount = 0;
-        for (int color : colors) {
-            if (color == constants.NO_COLOR) {
-                uncoloredVerticesCount++;
-            }
-        }
-        return uncoloredVerticesCount == 0 && isColoringValid();
+        return IntStream.of(colors).noneMatch(c -> c == constants.NO_COLOR) && isColoringValid();
     }
 
     public boolean tryToColorAndCheckIsValid(int vertex, int newColor) {
@@ -109,7 +99,7 @@ class Graph {
         return true;
     }
 
-    public static int rand(int min, int max) {
+    private static int rand(int min, int max) {
         return new Random().nextInt(max - min) + min;
     }
 }
